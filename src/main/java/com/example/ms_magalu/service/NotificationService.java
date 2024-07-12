@@ -1,6 +1,7 @@
 package com.example.ms_magalu.service;
 
 import com.example.ms_magalu.dto.ScheduleNotificationDto;
+import com.example.ms_magalu.entity.Email;
 import com.example.ms_magalu.entity.Notification;
 import com.example.ms_magalu.entity.Status;
 import com.example.ms_magalu.repository.NotificationRepository;
@@ -15,13 +16,19 @@ import java.util.function.Consumer;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final EmailService emailService;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository, EmailService emailService) {
         this.notificationRepository = notificationRepository;
+        this.emailService = emailService;
     }
 
     public void scheduleNotification(ScheduleNotificationDto dto) {
         notificationRepository.save(dto.toNotification());
+    }
+
+    public List<Notification> findAll() {
+        return notificationRepository.findAll();
     }
 
     public Optional<Notification> findById(Long id) {
@@ -47,11 +54,22 @@ public class NotificationService {
     }
 
     private Consumer<Notification> sendNotification() {
-        return n -> {
-            // TODO - perform notification sending
+        return notification -> {
+            boolean sent = emailService.send(
+                    new Email(
+                            notification.getId(),
+                            notification.getDestination(),
+                            "MS-Magalu status notification",
+                            notification.getMessage()
+                    )
+            );
 
-            n.setStatus(Status.Values.SUCCESS.toStatus());
-            notificationRepository.save(n);
+            if (sent) {
+                notification.setStatus(Status.Values.SUCCESS.toStatus());
+            }
+
+            notificationRepository.save(notification);
         };
     }
+
 }

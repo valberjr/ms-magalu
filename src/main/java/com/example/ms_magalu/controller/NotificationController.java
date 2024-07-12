@@ -6,6 +6,8 @@ import com.example.ms_magalu.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/notifications")
 public class NotificationController {
@@ -21,6 +23,11 @@ public class NotificationController {
         notificationService.scheduleNotification(dto);
 
         return ResponseEntity.accepted().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Notification>> getNotifications() {
+        return ResponseEntity.ok(notificationService.findAll());
     }
 
     @GetMapping("/{id}")
