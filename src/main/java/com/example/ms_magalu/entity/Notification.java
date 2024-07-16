@@ -18,6 +18,14 @@ public class Notification {
 
     private String message;
 
+    @ManyToOne
+    @JoinColumn(name = "channel_id")
+    private Channel channel;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id")
+    private Status status;
+
     public Notification() {
     }
 
@@ -28,14 +36,6 @@ public class Notification {
         this.channel = channel;
         this.status = status;
     }
-
-    @ManyToOne
-    @JoinColumn(name = "channel_id")
-    private Channel channel;
-
-    @ManyToOne
-    @JoinColumn(name = "status_id")
-    private Status status;
 
     public Long getId() {
         return id;
