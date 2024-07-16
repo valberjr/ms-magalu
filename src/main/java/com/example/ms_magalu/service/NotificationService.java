@@ -1,10 +1,13 @@
 package com.example.ms_magalu.service;
 
+import com.example.ms_magalu.dto.NotificationDto;
 import com.example.ms_magalu.dto.ScheduleNotificationDto;
-import com.example.ms_magalu.entity.Email;
 import com.example.ms_magalu.entity.Notification;
 import com.example.ms_magalu.entity.Status;
 import com.example.ms_magalu.repository.NotificationRepository;
+import com.example.ms_magalu.service.strategy.NotificationStrategyFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,12 +18,14 @@ import java.util.function.Consumer;
 @Service
 public class NotificationService {
 
-    private final NotificationRepository notificationRepository;
-    private final EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    public NotificationService(NotificationRepository notificationRepository, EmailService emailService) {
+    private final NotificationRepository notificationRepository;
+    private final NotificationStrategyFactory notificationStrategyFactory;
+
+    public NotificationService(NotificationRepository notificationRepository, NotificationStrategyFactory notificationStrategyFactory) {
         this.notificationRepository = notificationRepository;
-        this.emailService = emailService;
+        this.notificationStrategyFactory = notificationStrategyFactory;
     }
 
     public void scheduleNotification(ScheduleNotificationDto dto) {
@@ -55,19 +60,16 @@ public class NotificationService {
 
     private Consumer<Notification> sendNotification() {
         return notification -> {
-            boolean sent = emailService.send(
-                    new Email(
-                            notification.getId(),
-                            notification.getDestination(),
-                            "MS-Magalu status notification",
-                            notification.getMessage()
-                    )
+            var notificationDto = new NotificationDto(
+                    notification.getId(),
+                    notification.getDestination(),
+                    "MS-Magalu Notification",
+                    notification.getMessage(),
+                    notification.getChannel().getDescription()
             );
 
-            if (sent) {
-                notification.setStatus(Status.Values.SUCCESS.toStatus());
-            }
-
+            notificationStrategyFactory.execute(notificationDto);
+            notification.setStatus(Status.Values.SUCCESS.toStatus());
             notificationRepository.save(notification);
         };
     }
