@@ -16,6 +16,8 @@ public class Notification {
 
     private String destination;
 
+    private String subject;
+
     private String message;
 
     @ManyToOne
@@ -29,9 +31,10 @@ public class Notification {
     public Notification() {
     }
 
-    public Notification(LocalDateTime dateTime, String destination, String message, Channel channel, Status status) {
+    public Notification(LocalDateTime dateTime, String destination, String subject, String message, Channel channel, Status status) {
         this.dateTime = dateTime;
         this.destination = destination;
+        this.subject = subject;
         this.message = message;
         this.channel = channel;
         this.status = status;
@@ -59,6 +62,14 @@ public class Notification {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     public String getMessage() {

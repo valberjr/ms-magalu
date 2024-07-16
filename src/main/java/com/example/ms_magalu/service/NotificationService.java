@@ -63,7 +63,7 @@ public class NotificationService {
             var notificationDto = new NotificationDto(
                     notification.getId(),
                     notification.getDestination(),
-                    "MS-Magalu Notification",
+                    notification.getSubject(),
                     notification.getMessage(),
                     notification.getChannel().getDescription()
             );
